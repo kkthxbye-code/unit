@@ -117,21 +117,16 @@ nxt_python_start(nxt_task_t *task, nxt_process_data_t *data)
         } else {
             size = (len + 1) * sizeof(wchar_t);
         }
+        
+        PyConfig config;
+        PyConfig_InitIsolatedConfig(&config);
+        Py_InitializeFromConfig(&config);
+        PyConfig_Clear(&config);
 
         nxt_py_home = nxt_malloc(size);
         if (nxt_slow_path(nxt_py_home == NULL)) {
             nxt_alert(task, "Failed to allocate memory");
             return NXT_ERROR;
-        }
-
-        if (pep405) {
-            mbstowcs(nxt_py_home, c->home, len);
-            mbstowcs(nxt_py_home + len, bin_python, sizeof(bin_python));
-            Py_SetProgramName(nxt_py_home);
-
-        } else {
-            mbstowcs(nxt_py_home, c->home, len + 1);
-            Py_SetPythonHome(nxt_py_home);
         }
 
 #else
